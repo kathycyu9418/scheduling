@@ -1,8 +1,3 @@
-/*!
- * FullCalendar v3.9.0
- * Docs & License: https://fullcalendar.io/
- * (c) 2018 Adam Shaw
- */
 ! function(t, e) {
     "object" == typeof exports && "object" == typeof module ? module.exports = e(require("moment"), require("jquery")) :
         "function" == typeof define && define.amd ? define(["moment", "jquery"], e) :
