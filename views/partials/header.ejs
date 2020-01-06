@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Restaurant</title>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<style>
+#search-bar{
+   position: absolute;
+   width: auto;
+   background: white;
+   border-bottom-left-radius: 10px;
+   border-bottom-right-radius: 10px;
+   max-height: 200px;
+   overflow: auto;
+
+   border: 1px solid gray;
+
+   /*This is relative to the navbar now*/
+   left: -40%;
+   right: 0;
+   top: 40px;
+   align: "left";
+}
+
+</style>
+<body>
+    <div class="ui fixed inverted menu">
+        <div class="ui container">
+            <div class="header item">
+                <i class=""></i> Calender
+            </div>
+            <a class="item" href="/">Home</a>
+            <a class="item" onclick="showForm()">Create New Schedule</a>
+            <a class="item" href="/logout">Logout</a>
+            <input type="search" onkeyup="showResults(this.value)" placeholder="search.." id="search" name="search">
+            <div style="position: relative;width: 100%;">
+            <div class="search-bar" id="search-bar">
+            </div>
+          </div>
+        </div>
+    </div>
+    <br>
+    <br>
+<script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
+</body>
+
+</html>
+
+
+
+
+<!-- <html>
+    <head>
+        <title>Blog App</title>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/segment.css">
+    </head>
+
+    <body>
+        <div class="ui fixed inverted menu">
+            <div class="ui container">
+                <div class="header item">
+                    Blog Site
+                </div>
+                <a class="item" href="/">Home</a>
+                <a class="item" href="/blogs/new">New Post</a>
+            </div>
+        </div>
+<p>From The header</p> -->

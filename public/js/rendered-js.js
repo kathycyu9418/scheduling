@@ -1,12 +1,37 @@
-function timePicker(start, end) {
+function showForm(){
+  var modal = document.getElementById("myModal"); // Get the modal
+  modal.style.display = "block";// When the user clicks on <span> (x), close the modal
+  var start = new Date();
+  let startTime = roundTime(start.getTime());
+  document.getElementById("start").value= (startTime.getTime() + 28800000);
+  document.getElementById("bookingTime").addEventListener('click', timePicker(startTime));
+  submitForm();
+}
+
+function roundTime(startTime) {
+  let time = 5 * 60 * 1000;
+  startTime = startTime + (2.5 * 60 * 1000);
+  let roundedTime = new Date(Math.round(startTime/time) * time);
+  return roundedTime;
+}
+
+function timePicker(start) {
+  document.getElementById("start").value= start.valueOf();
+
   $('input[name="bookingTime"]').daterangepicker({
+    singleDatePicker: true,
     timePicker: true,
     startDate: moment(start).format('MM-DD HH:mm'),
-    endDate: moment(end).format('MM-DD HH:mm'),
     locale: {
       format: 'M-DD hh:mm A'
     }
   });
+
+  $('#bookingTime').on('apply.daterangepicker', function(ev, picker) {
+    var startDate = (parseInt(picker.startDate.valueOf()) + 28800000);
+    document.getElementById("start").value= startDate;
+  });
+
 };
 //get the search result from db
 var showResults = debounce(function (arg) {
@@ -99,12 +124,16 @@ function submitForm(criteria){
       });
     }
     let result = await response.json();
+    console.log(result);
     if(result == "success"){
       alert(msg);
       document.getElementById("myModal").style.display = "none";
+      $("#submit").val("submit");
       $("#scheduling")[0].reset();
       $("#calendar").fullCalendar("updateEvent", 'events');
       $("#calendar").fullCalendar('refetchEvents');
+    }else{
+      alert(result);
     };
   };
 };
@@ -121,6 +150,7 @@ var modal = document.getElementById("myModal"); // Get the modal
   }
 })
 
+//handle calendar
 $(document).ready(function () {
 $("#calendar").fullCalendar({
   timeZone: 'local',
@@ -145,36 +175,9 @@ if(view.name == "agendaDay" || view.name == "agendaWeek"){
   }
   //set time picker
   document.getElementById("bookingTime").addEventListener('click', timePicker(start, end));
-  console.log(start.valueOf());
-  $('#bookingTime').on('apply.daterangepicker', function(ev, picker) {
-    console.log(picker.startDate.valueOf());
-    var startDate = startDate.valueOf();
-    var endDate = parseInt(picker.endDate.valueOf() + 28800000);
-    events[0].start = startDate;
-    events[0].end = endDate;
-  });
-  document.getElementById("start").value= start.valueOf();
-  document.getElementById("end").value= end.valueOf();
   //submit without reload
-  document.getElementById("scheduling").onsubmit = async (e) => {
-    e.preventDefault();
-    var data = $('form').serialize();
-    let response = await fetch('insert_order', {
-      method: 'POST',
-      body: data,
-      headers: { 'Accept' : 'application/json', 'Content-Type': 'application/x-www-form-urlencoded'}
-    });
-    let result = await response.json();
-    if(result == "success"){
-      alert("Success");
-      modal.style.display = "none";
-      $("#scheduling")[0].reset();
-      $("#calendar").fullCalendar('addEventSource', 'events');
-      $("#calendar").fullCalendar('refetchEvents');
-    };
-    }
-
-    $("#calendar").fullCalendar("unselect");
+  submitForm();
+  $("#calendar").fullCalendar("unselect");
   },
 
 //day click
@@ -207,17 +210,10 @@ dayClick: function (date) {
     });
     let events = await response.json();
     $("#submit").val("update");
-    document.getElementById("bookingTime").addEventListener('click', timePicker((parseInt(events[0].start) - 28800000), (parseInt(events[0].end) - 28800000)));
-    $('#bookingTime').on('apply.daterangepicker', function(ev, picker) {
-      var startDate = (parseInt(picker.startDate.valueOf()) + 28800000);
-      var endDate = (parseInt(picker.endDate.valueOf()) + 28800000);
-      document.getElementById("start").value= startDate;
-      document.getElementById("end").value = endDate;
-      console.log(document.getElementById("start").value);
-    });
     fillValues(events[0]);
-    submitForm(calEvent.id);
     document.getElementById("myModal").style.display = "block";
+    document.getElementById("bookingTime").addEventListener('click', timePicker((parseInt(events[0].start) - 28800000)));
+    submitForm(calEvent.id);
   },
 
   events: async (start, end, timezone, callback) => {
@@ -233,7 +229,6 @@ dayClick: function (date) {
       let start = doc.start;
       let end = doc.end;
       let id = doc._id;
-      console.log(id);
       events.push({
         id: id,
         title:name,

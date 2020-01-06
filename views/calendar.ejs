@@ -1,0 +1,131 @@
+<% include partials/header %>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Car A scheduling </title>
+<link rel='stylesheet' type="text/css" href='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.css'>
+<link rel='stylesheet' type="text/css" href='https://fonts.googleapis.com/icon?family=Material+Icons'>
+<link rel='stylesheet' type="text/css" href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'>
+<link rel='stylesheet' type="text/css" href='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css'>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+<style>
+#calendar {
+  max-width: 900px;
+  margin: 0 auto;
+}
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 9; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 50%;
+}
+.border {
+  background-color: #fefefe;
+  width: 50%;
+  display: block;;
+}
+
+/* The Close Button */
+.close {
+  color: #aaaaaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+</style>
+
+</head>
+<body translate="no">
+<div id="myModal" class="modal">
+
+  <!-- Modal content -->
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <form id="scheduling">
+  <fieldset>
+    <legend>Booking information:</legend>
+    User ID:
+    <input type="text" name="userid" id="userid">
+    <br>
+    Booking User:
+    <input type="text" name="bookingName" id="bookingName">
+    <br>
+    Start Point:
+    <input type="text" name="start_point" id="start_search_input" placeholder="Type address..." />
+    <input type="hidden" name="start_loc_lat" id="start_loc_lat" />
+    <input type="hidden" name="start_loc_long" id="start_loc_long" />
+    <br>
+    Destination:
+    <input type="text" name="destination" id="des_search_input" placeholder="Type address..." />
+    <input type="hidden" name="des_loc_lat" id="des_loc_lat" />
+    <input type="hidden" name="des_loc_long" id="des_loc_long" />
+    <br>
+	  Time:
+    <input type="text" name="bookingTime" id="bookingTime">
+    <input type="hidden" name="start" id="start" />
+    <br>
+    Phone Number:
+    <input type="text"  autocomplete="off" onkeyup="showResults(this.value)" id="phoneNumber" name="phoneNumber">
+       <!-- display the search result -->
+       <div class="border" id="search-results">
+       </div>
+    <br>
+    Price:
+    <input type="number" id="price" name="price">
+    <br>
+    Contact Person:
+    <input type="text" id="clientName" name="clientName">
+    <br>
+	Description:
+    <input type="text" id="description" name="description">
+    <br>
+    <br>
+    <input type="submit" id="submit" value="Submit">
+  </fieldset>
+</form>
+  </div>
+
+</div>
+<div id='calendar'></div>
+<div class="dropdown">
+<div class="dropdown-content">
+</div>
+</div>
+<script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js'></script>
+<script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
+<script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js'></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js'></script>
+<script type="text/javascript" src='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js'></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places&key=AIzaSyCTCwHdttWisg9wyRaDMdcIAxzL7-pBoFc&language=zh-HK"></script>
+<script type="text/javascript" src='/js/fullcalendar.js'></script>
+<script type="text/javascript" src='/js/rendered-js.js'></script>
+<script type="text/javascript" src='/js/location.js'></script>
+</body>
+</html>
+<% include partials/footer %>
