@@ -3,7 +3,8 @@ function showForm(){
   modal.style.display = "block";// When the user clicks on <span> (x), close the modal
   var start = new Date();
   let startTime = roundTime(start.getTime());
-  document.getElementById("start").value= (startTime.getTime() + 28800000);
+  document.getElementById("start").value = (startTime.getTime() + 28800000);
+  console.log(document.getElementById("start").value);
   document.getElementById("bookingTime").addEventListener('click', timePicker(startTime));
   submitForm();
 }
@@ -16,8 +17,6 @@ function roundTime(startTime) {
 }
 
 function timePicker(start) {
-  document.getElementById("start").value= start.valueOf();
-
   $('input[name="bookingTime"]').daterangepicker({
     singleDatePicker: true,
     timePicker: true,
@@ -68,22 +67,21 @@ var showResults = debounce(function (arg) {
 }, 300);
 //set the value to form(last record)
 function fillValues(events) {
-      $("#userid").val(events.userid);
       $("#bookingName").val(events.bookingName);
-      $("#start_search_input").val(events.start_point);
-      $("#start_loc_lat").val(events.start_loc_lat);
-      $("#start_loc_long").val(events.start_loc_long);
-      $("#des_search_input").val(events.destination);
-      $("#des_loc_lat").val(events.des_loc_lat);
-      $("#des_loc_long").val(events.des_loc_long);
+      $("#start_search_input").val(events.start_location.start_point);
+      $("#start_loc_lat").val(events.start_location.lat);
+      $("#start_loc_long").val(events.start_location.long);
+      $("#des_search_input").val(events.destination.dest);
+      $("#des_loc_lat").val(events.destination.at);
+      $("#des_loc_long").val(events.destination.long);
       $("#phoneNumber").val(events.phoneNumber);
       $("#price").val(events.price);
-      $("#clientName").val(events.clientName);
+      $("#clientName").val(events.passeger);
       $("#description").val(events.description);
       if($("#submit").val() == "update") {
-        $("#bookingTime").val(events.bookingTime);
-        $("#start").val(events.start);
-        $("#end").val(events.end);
+        $("#bookingTime").val(events.bookingTime.booking);
+        $("#start").val(events.bookingTime.start);
+        $("#end").val(events.bookingTime.end);
       }
 };
 
@@ -107,6 +105,7 @@ function submitForm(criteria){
   document.getElementById("scheduling").onsubmit = async (e) => {
     e.preventDefault();
     var data = $('form').serialize();
+    console.log(data);
     var msg;
     if($("#submit").val() == "update"){
       msg = "Update Success!";
@@ -141,19 +140,12 @@ function submitForm(criteria){
 $(document.getElementsByClassName("close")[0]).click(function() {
   var modal = document.getElementById("myModal"); // Get the modal
   modal.style.display = "none";// When the user clicks on <span> (x), close the modal
-})
-
-$(window).click(function(event) {
-var modal = document.getElementById("myModal"); // Get the modal
-  if (event.target == modal) {
-    modal.style.display = "none";// When the user clicks anywhere outside of the modal, close it
-  }
+  $("#submit").val("submit");
 })
 
 //handle calendar
 $(document).ready(function () {
 $("#calendar").fullCalendar({
-  timeZone: 'local',
   header: {
     left: "prev,next today",
     center: "title",
@@ -165,6 +157,7 @@ $("#calendar").fullCalendar({
   selectHelper: false,
   editable: true,
   eventLimit: true, // allow "more" link when too many events
+  timeZone: 'Asia/Taipei',
 
 //event select
 select: function (start, end) {
@@ -173,7 +166,8 @@ if(view.name == "agendaDay" || view.name == "agendaWeek"){
   var modal = document.getElementById("myModal"); // Get the modal
   modal.style.display = "block";
   }
-  //set time picker
+  document.getElementById("start").value = start.valueOf();
+  //set time picker`
   document.getElementById("bookingTime").addEventListener('click', timePicker(start, end));
   //submit without reload
   submitForm();
@@ -215,19 +209,21 @@ dayClick: function (date) {
     document.getElementById("bookingTime").addEventListener('click', timePicker((parseInt(events[0].start) - 28800000)));
     submitForm(calEvent.id);
   },
-
   events: async (start, end, timezone, callback) => {
-    let response = await fetch('find_all', {
+    console.log(document.getElementById("calenderName").innerHTML);
+    let response = await fetch(`find_all?license=${document.getElementById("calenderName").innerHTML}`, {
       method: 'get',
       headers: { 'Content-Type': 'application/json' }
     });
     let result = await response.json();
     let events = [];
     result.forEach((doc) => {
+      console.log(doc);
       let name = `Name: ${doc.bookingName} (${doc.phoneNumber})`;
-      let description =  `Location: ${doc.start_point} TO ${doc.destination}<br> Price: ${doc.price}`;
-      let start = doc.start;
-      let end = doc.end;
+      let description =  `Location: ${doc.start_location.start_point} TO ${doc.destination.dest}<br> Price: ${doc.price}`;
+      let start = doc.bookingTime.start;
+      console.log(new Date(start));
+      let end = doc.bookingTime.end;
       let id = doc._id;
       events.push({
         id: id,
@@ -239,6 +235,7 @@ dayClick: function (date) {
     });
     callback(events);
     },
+    timezone: 'Asia/Taipei'
 });
 
 

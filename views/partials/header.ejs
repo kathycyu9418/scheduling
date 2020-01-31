@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Restaurant</title>
+    <title><%=licensePlateNumber%> Calender</title>
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
@@ -27,20 +27,49 @@
    top: 40px;
    align: "left";
 }
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  padding: 12px 16px;
+  z-index: 1;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
 
 </style>
 <body>
     <div class="ui fixed inverted menu">
         <div class="ui container">
             <div class="header item">
-                <i class=""></i> Calender
+                <i class="" name="calenderName" id="calenderName"><%=licensePlateNumber%></i>
             </div>
             <a class="item" href="/">Home</a>
+            <a class="item" href="/insertCar">Insert a new car type</a>
             <a class="item" onclick="showForm()">Create New Schedule</a>
+            <div class="dropdown">
+            <a class="item" id="carList">Car List</a>
+            <div id="myDropdown" class="dropdown-content">
+            <ul>
+              <%cars.forEach((car)=> {%>
+                <li><a class="carCalendar" href="/getCalendar?license=<%=car%>"><%=car%></a></li>
+              <%})%>
+            </ul>
+          </div>
+          </div>
             <a class="item" href="/logout">Logout</a>
-            <input type="search" onkeyup="showResults(this.value)" placeholder="search.." id="search" name="search">
+            <!--<input type="search" onkeyup="showResults(this.value)" placeholder="search.." id="search" name="search">
             <div style="position: relative;width: 100%;">
-            <div class="search-bar" id="search-bar">
+            <div class="search-bar" id="search-bar">-->
             </div>
           </div>
         </div>

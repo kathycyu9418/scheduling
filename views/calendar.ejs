@@ -2,7 +2,6 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Car A scheduling </title>
 <link rel='stylesheet' type="text/css" href='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.css'>
 <link rel='stylesheet' type="text/css" href='https://fonts.googleapis.com/icon?family=Material+Icons'>
 <link rel='stylesheet' type="text/css" href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'>
@@ -67,9 +66,6 @@
     <form id="scheduling">
   <fieldset>
     <legend>Booking information:</legend>
-    User ID:
-    <input type="text" name="userid" id="userid">
-    <br>
     Booking User:
     <input type="text" name="bookingName" id="bookingName">
     <br>
@@ -87,6 +83,13 @@
     <input type="text" name="bookingTime" id="bookingTime">
     <input type="hidden" name="start" id="start" />
     <br>
+    Number of wheelchair:
+    <select name ="wheelChairNumber">
+      <option value="0">0</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+    </select>
+    <br>
     Phone Number:
     <input type="text"  autocomplete="off" onkeyup="showResults(this.value)" id="phoneNumber" name="phoneNumber">
        <!-- display the search result -->
@@ -97,7 +100,7 @@
     <input type="number" id="price" name="price">
     <br>
     Contact Person:
-    <input type="text" id="clientName" name="clientName">
+    <input type="text" id="clientName" name="passeger">
     <br>
 	Description:
     <input type="text" id="description" name="description">
