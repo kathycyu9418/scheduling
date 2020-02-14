@@ -64,7 +64,10 @@ app.post('/insert_carType', (req, res) => {
     car.save(function (err) {
       if (err) return handleError(err);
       // saved!
-      res.render('calendar');
+      let cars = findAllCars({});
+      cars.then(function(result) {
+        res.render('calendar', {licensePlateNumber: "A", cars:result});
+      });
     });
   }
 });
@@ -98,7 +101,6 @@ app.post('/insert_order', (req, res) => {
         }else{
           console.log(cars);
           let result = checkTimeConflict(schedules, newEvent, cars); // check time conflict
-          console.log(result.ranges[0].cars.size);
           if(result.ranges[0].cars.size == 0){
             res.json("Time Conflict");
           }else{
@@ -230,7 +232,7 @@ function checkTimeConflict(schedules, newEvent, cars) {
     }
     return result;
    // seed the reduce
- }, {overlap: false, ranges: []});
+ }, {overlap: false, ranges: [{cars:cars}]});
 // return the final results
   return result;
 };
