@@ -25,6 +25,9 @@
   background-color: rgb(0,0,0); /* Fallback color */
   background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
 }
+.bookingEndTime {
+  display: none; /* Hidden by default */
+}
 
 /* Modal Content */
 .modal-content {
@@ -79,10 +82,15 @@
     <input type="hidden" name="des_loc_lat" id="des_loc_lat" />
     <input type="hidden" name="des_loc_long" id="des_loc_long" />
     <br>
-	  Time:
+	  Start Time:
     <input type="text" name="bookingTime" id="bookingTime">
     <input type="hidden" name="start" id="start" />
     <br>
+    <div id="bookingEndTime" class="bookingEndTime">
+    End Time:
+    <input id="endInput" name="bookingEndTime" readonly/>
+    <br>
+  </div>
     Number of wheelchair:
     <select name ="wheelChairNumber">
       <option value="0">0</option>

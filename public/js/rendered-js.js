@@ -1,5 +1,6 @@
 function showForm(){
   var modal = document.getElementById("myModal"); // Get the modal
+  document.getElementById("bookingEndTime").style.display = "none";
   modal.style.display = "block";// When the user clicks on <span> (x), close the modal
   var start = new Date();
   let startTime = roundTime(start.getTime());
@@ -22,7 +23,7 @@ function timePicker(start) {
     timePicker: true,
     startDate: moment(start).format('MM-DD HH:mm'),
     locale: {
-      format: 'M-DD hh:mm A'
+      format: 'MM-DD HH:mm'
     }
   });
 
@@ -72,7 +73,7 @@ function fillValues(events) {
       $("#start_loc_lat").val(events.start_location.lat);
       $("#start_loc_long").val(events.start_location.long);
       $("#des_search_input").val(events.destination.dest);
-      $("#des_loc_lat").val(events.destination.at);
+      $("#des_loc_lat").val(events.destination.lat);
       $("#des_loc_long").val(events.destination.long);
       $("#phoneNumber").val(events.phoneNumber);
       $("#price").val(events.price);
@@ -81,6 +82,8 @@ function fillValues(events) {
       if($("#submit").val() == "update") {
         $("#bookingTime").val(events.bookingTime.booking);
         $("#start").val(events.bookingTime.start);
+        $("#endInput").val(moment((events.bookingTime.end - 28800000)).format('MM-DD HH:mm'));
+        document.getElementById("bookingEndTime").style.display = "block";
         $("#end").val(events.bookingTime.end);
       }
 };
@@ -103,6 +106,7 @@ function debounce(func, wait, immediate) {
 
 function submitForm(criteria){
   document.getElementById("scheduling").onsubmit = async (e) => {
+    document.getElementById("myModal").style.display = "none";
     e.preventDefault();
     var data = $('form').serialize();
     console.log(data);
@@ -132,6 +136,7 @@ function submitForm(criteria){
       $("#calendar").fullCalendar("updateEvent", 'events');
       $("#calendar").fullCalendar('refetchEvents');
     }else{
+      document.getElementById("myModal").style.display = "block";
       alert(result);
     };
   };
@@ -206,7 +211,7 @@ dayClick: function (date) {
     $("#submit").val("update");
     fillValues(events[0]);
     document.getElementById("myModal").style.display = "block";
-    document.getElementById("bookingTime").addEventListener('click', timePicker((parseInt(events[0].start) - 28800000)));
+    document.getElementById("bookingTime").addEventListener('click', timePicker((parseInt(events[0].bookingTime.start) - 28800000)));
     submitForm(calEvent.id);
   },
   events: async (start, end, timezone, callback) => {
@@ -222,7 +227,6 @@ dayClick: function (date) {
       let name = `Name: ${doc.bookingName} (${doc.phoneNumber})`;
       let description =  `Location: ${doc.start_location.start_point} TO ${doc.destination.dest}<br> Price: ${doc.price}`;
       let start = doc.bookingTime.start;
-      console.log(new Date(start));
       let end = doc.bookingTime.end;
       let id = doc._id;
       events.push({
