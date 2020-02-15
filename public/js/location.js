@@ -11,8 +11,11 @@ $(document).ready(function () {
     });
     google.maps.event.addListener(autocomplete, 'place_changed', function () {
       var near_place = autocomplete.getPlace();
+      let len = near_place.address_components.length - 2;
+      let district = near_place.address_components[len];
       var lat = near_place.geometry.location.lat();
       var long = near_place.geometry.location.lng();
+      document.getElementById('start_district').value = district.long_name;
       document.getElementById('start_loc_lat').value = lat;
       document.getElementById('start_loc_long').value = long;
     });
@@ -31,6 +34,10 @@ $(document).ready(function () {
 
     google.maps.event.addListener(desAutocomplete, 'place_changed', function () {
       var des_near_place = desAutocomplete.getPlace();
+      let len = des_near_place.address_components.length - 2;
+      let district = des_near_place.address_components[len];
+      console.log(district);
+      document.getElementById('end_district').value = district.long_name;
       document.getElementById('des_loc_lat').value = des_near_place.geometry.location.lat();
       document.getElementById('des_loc_long').value = des_near_place.geometry.location.lng();
 

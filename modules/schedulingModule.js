@@ -10,6 +10,8 @@ const schedulingScheme = Joi.object({
   des_loc_long: Joi.number(),
   wheelChairNumber: Joi.number(),
   bookingTime: Joi.string(),
+  start_district: Joi.string(),
+  end_district: Joi.string(),
   bookingEndTime: Joi.string().allow(""),
   start: Joi.number(),
   end: Joi.number(),

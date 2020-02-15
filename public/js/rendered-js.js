@@ -17,6 +17,10 @@ function roundTime(startTime) {
   return roundedTime;
 }
 
+function updateEndTime(){
+
+}
+
 function timePicker(start) {
   $('input[name="bookingTime"]').daterangepicker({
     singleDatePicker: true,
@@ -119,7 +123,7 @@ function submitForm(criteria){
         headers: { 'Accept' : 'application/json', 'Content-Type': 'application/x-www-form-urlencoded'}
       });
     }else{
-      msg = "Inserted Success!"
+      msg = "Inserted Success"
       var response = await fetch('insert_order', {
         method: 'POST',
         body: data,
@@ -128,8 +132,8 @@ function submitForm(criteria){
     }
     let result = await response.json();
     console.log(result);
-    if(result == "success"){
-      alert(msg);
+    if(result.success == "success"){
+      alert(`Inserted to car ${result.car}!`);
       document.getElementById("myModal").style.display = "none";
       $("#submit").val("submit");
       $("#scheduling")[0].reset();
@@ -163,6 +167,7 @@ $("#calendar").fullCalendar({
   editable: true,
   eventLimit: true, // allow "more" link when too many events
   timeZone: 'Asia/Taipei',
+  contentHeight: 700,
 
 //event select
 select: function (start, end) {
@@ -187,6 +192,13 @@ dayClick: function (date) {
 
   eventRender: function (event, element) {
     element.find('.fc-title').append("<br/>" + event.description);
+    $(element).css('font-size', '1em');
+    var view = $('#calendar').fullCalendar('getView');
+    console.log(view.name);
+    if(view.name == 'agendaDay'){
+      $(element).css('min-height', '100px');
+    }
+    //$(element).css('min-height', '100px');
     /*element.find(".fc-content").
     prepend("<span class='closeon material-icons'>&#xe5cd;</span>");
     /*element.popover({
@@ -215,26 +227,39 @@ dayClick: function (date) {
     submitForm(calEvent.id);
   },
   events: async (start, end, timezone, callback) => {
-    console.log(document.getElementById("calenderName").innerHTML);
+    //console.log(document.getElementById("calenderName").innerHTML);
     let response = await fetch(`find_all?license=${document.getElementById("calenderName").innerHTML}`, {
       method: 'get',
       headers: { 'Content-Type': 'application/json' }
     });
     let result = await response.json();
     let events = [];
+    var color = 'red';
     result.forEach((doc) => {
-      console.log(doc);
+      //console.log(doc);
       let name = `Name: ${doc.bookingName} (${doc.phoneNumber})`;
       let description =  `Location: ${doc.start_location.start_point} TO ${doc.destination.dest}<br> Price: ${doc.price}`;
       let start = doc.bookingTime.start;
       let end = doc.bookingTime.end;
       let id = doc._id;
+      console.log(doc.destination.end_district);
+      if(doc.destination.end_district == '新界' || doc.destination.end_district == 'New Territories'){
+        console.log(color);
+        color = "green";
+      }else if(doc.destination.end_district == '香港島' || doc.destination.end_district == 'Hong Kong Island'){
+        color = "blue";
+        console.log(color);
+      }else{
+        color = 'red';
+      }
       events.push({
         id: id,
         title:name,
         description: description,
         start: start,
-        end: end
+        end: end,
+        color: color,
+        textColor: 'white'
       });
     });
     callback(events);

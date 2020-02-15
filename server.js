@@ -57,7 +57,7 @@ app.get('/insertCar', (req, res) => {
 app.post('/insert_carType', (req, res) => {
   const result = Joi.validate(req.body, carTypeScheme); //validate form input
   if(result.error){
-    console.log(result.error);
+    //console.log(result.error);
     res.status(400).json(result.error.details[0].message);
   }else {
     var car = new carType(req.body);
@@ -75,13 +75,14 @@ app.post('/insert_carType', (req, res) => {
 app.post('/insert_order', (req, res) => {
     const result = Joi.validate(req.body, schedulingScheme); //validate form input
     if(result.error){
-      console.log(result.error);
+      //console.log(result.error);
       res.status(400).json(result.error.details[0].message);
     }else {
       let event = req.body;
       let bookingDay = event.start - (event.start % 86400000);
       let criteria = {'bookingTime.start': {$gte: bookingDay}};;
       let newEvent = convertReqBody(event);
+      console.log(newEvent);
       const getAllInfo = Promise.all([
         roundEndTime(newEvent),
         findAllCars({}),
@@ -91,15 +92,15 @@ app.post('/insert_order', (req, res) => {
         newEvent.bookingTime.end = endTime;
         if(schedules.length == 0 && cars.length > 0){
           newEvent.carType.licensePlateNumber = cars[0].licensePlateNumber;
-          console.log(newEvent);
+          //console.log(newEvent);
           let insert = new phoneNumber(newEvent);
           insert.save(function (err) {
             if (err) return handleError(err);
             // saved!
-            res.json("success");
+            res.json({success:"success", car:newEvent.carType.licensePlateNumber});
           });
         }else{
-          console.log(cars);
+          //console.log(cars);
           let result = checkTimeConflict(schedules, newEvent, cars); // check time conflict
           if(result.ranges[0].cars.size == 0){
             res.json("Time Conflict");
@@ -110,7 +111,7 @@ app.post('/insert_order', (req, res) => {
               insert.save(function (err) {
                 if (err) return handleError(err);
                 // saved!
-                res.json("success");
+                res.json({success:"success", car:newEvent.carType.licensePlateNumber});
               });
           }
         }
@@ -177,8 +178,8 @@ const updateDoc = (id,newDoc, callback) => {
 function convertReqBody(event){
   let new_r = {};
   new_r.bookingName = event.bookingName;
-  new_r.start_location = {start_point:event.start_point, lat:event.start_loc_lat, long:event.start_loc_long};
-  new_r.destination = {dest:event.destination, lat:event.des_loc_lat, long:event.des_loc_long};
+  new_r.start_location = {start_point:event.start_point, lat:event.start_loc_lat, long:event.start_loc_long, start_district:event.start_district};
+  new_r.destination = {dest:event.destination, lat:event.des_loc_lat, long:event.des_loc_long, end_district:event.end_district};
   new_r.bookingTime = {booking:event.bookingTime, start:event.start}
   new_r.carType = {wheelChairNumber: event.wheelChairNumber};
   new_r.phoneNumber = event.phoneNumber;
