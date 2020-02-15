@@ -51,7 +51,10 @@ app.get('/getCalendar', (req, res) => {
 });
 
 app.get('/insertCar', (req, res) => {
-  res.render('insertCar');
+  let cars = findAllCars({});
+  cars.then(function(result) {
+    res.render('insertCar', {licensePlateNumber: "A", cars:result});
+  });
 });
 
 app.post('/insert_carType', (req, res) => {

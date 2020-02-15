@@ -248,7 +248,6 @@ dayClick: function (date) {
         color = "green";
       }else if(doc.destination.end_district == '香港島' || doc.destination.end_district == 'Hong Kong Island'){
         color = "blue";
-        console.log(color);
       }else{
         color = 'red';
       }
