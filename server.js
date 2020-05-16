@@ -95,8 +95,9 @@ app.post('/insert_order', (req, res) => {
       ])
       .then(([endTime, cars, schedules]) => {
         newEvent.bookingTime.end = endTime;
-        if(schedules.length == 0 && cars.length > 0){
-          newEvent.carType.licensePlateNumber = cars[0].licensePlateNumber;
+        if(schedules.length == 0 && cars.size > 0){
+          const iterator1 = cars.values();
+          newEvent.carType.licensePlateNumber = iterator1.next().value;;
           //console.log(newEvent);
           let insert = new phoneNumber(newEvent);
           insert.save(function (err) {
@@ -131,18 +132,6 @@ app.post('/insert_order', (req, res) => {
           }else{
             res.json("Time Conflict");
           }
-          /*if(result.ranges[0].cars.size == 0){
-            res.json("Time Conflict");
-          }else{
-            const iterator1 = result.ranges[0].cars.values();
-            newEvent.carType.licensePlateNumber = iterator1.next().value;
-            let insert = new phoneNumber(newEvent);
-              insert.save(function (err) {
-                if (err) return handleError(err);
-                // saved!
-                res.json({success:"success", car:newEvent.carType.licensePlateNumber});
-              });
-          }*/
         }
       });
     };
@@ -215,22 +204,75 @@ app.put('/update/:id', (req,res) => {
       res.status(400).json(result.error.details[0].message);
     }else {
       let events = convertReqBody(req.body);
-
-      updateDoc(req.params.id, events,(result) => {
+      updateEvent(events, (check) =>{
+        console.log(check);
+        if(check != "Time Conflict"){
+          updateDoc(req.params.id, check,(result) => {
+            console.log(result);
+            res.json(result);
+          });
+        }
+      });
+      /*updateDoc(req.params.id, events,(result) => {
         console.log(result);
         res.json(result);
-      });
+      });*/
     }
 
 });
 
+const updateEvent = (event, callback) => {
+  let bookingDay = event.bookingTime.start - (event.bookingTime.start % 86400000);
+  let afterDay = bookingDay + (24 * 60 * 60 * 1000);
+  console.log(new Date(bookingDay));
+  let criteria = {'bookingTime.start': {$gte: bookingDay, $lte:afterDay}};;
+  const getAllInfo = Promise.all([
+    roundEndTime(event),
+    findAllCars({}),
+    findAllSchedules(criteria)
+  ])
+  .then(([endTime, cars, schedules]) => {
+    console.log(schedules.length);
+    console.log(cars);
+    event.bookingTime.end = endTime;
+    if(schedules.length == 0 && cars.size > 0){
+      const iterator1 = cars.values();
+      event.carType.licensePlateNumber = iterator1.next().value;;
+      callback(event);
+    }else{
+      //console.log(cars);
+      let result = checkTimeConflict(schedules, event, cars); // check time conflict
+      if(result.ranges[0].cars.size !=0){
+        checkShorterRoad(schedules, event, result.ranges[0].cars, (shortedResult) =>{
+          console.log(shortedResult);
+          if(callback.length !=0){
+            event.carType.licensePlateNumber = shortedResult[0].carType;
+            //console.log(event);
+            callback(event);
+          }else{
+            const iterator1 = result.ranges[0].cars.values();
+            event.carType.licensePlateNumber = iterator1.next().value;
+            console.log(event);
+            callback(event);
+          }
+        })
+      }else{
+        callback("Time Conflict");
+      }
+    }
+  });
+
+}
 //Update scheduled event
 const updateDoc = (id,newDoc, callback) => {
   let criteria = {};
   criteria['_id'] = new ObjectID(id);
   phoneNumber.findOneAndUpdate(criteria, newDoc, { new: true }, function (err, data) {
     assert.equal(null,err);
-    callback("success");
+    let result = {};
+    result.success = "success";
+    result.car = newDoc.carType.licensePlateNumber;
+    callback(result);
   });
 }
 
@@ -402,6 +444,7 @@ const checkShorterRoad = (schedules, newEvent, noConflictCar, callback) => {
     let temp = iterator1.next().value;
     let result = schedules.filter(carSchedule => (carSchedule.carType.licensePlateNumber == temp));
     result.push(newEvent);
+    console.log(result.length);
     if(result.length > 1){
       sortRange(result, (sortedRanges) => {
         const index = (element) => element.bookingTime.start == newEvent.bookingTime.start;
@@ -427,7 +470,7 @@ const checkShorterRoad = (schedules, newEvent, noConflictCar, callback) => {
                 count++;
                 if(count == total*2){
                   sortDuration(durationArray, (sortedDuration) => {
-                    //callback(sortedDuration);
+                    callback(sortedDuration);
                   })
 
                 }
@@ -444,7 +487,7 @@ const checkShorterRoad = (schedules, newEvent, noConflictCar, callback) => {
                 count++;
                 if(count == total){
                   sortDuration(durationArray, (sortedDuration) => {
-                    //callback(sortedDuration);
+                    callback(sortedDuration);
                   })
 
                 }
@@ -461,7 +504,7 @@ const checkShorterRoad = (schedules, newEvent, noConflictCar, callback) => {
                 count++;
                 if(count == total){
                   sortDuration(durationArray, (sortedDuration) => {
-                    //callback(sortedDuration);
+                    callback(sortedDuration);
                   })
 
                 }
@@ -487,6 +530,12 @@ const checkShorterRoad = (schedules, newEvent, noConflictCar, callback) => {
 
               }
             });
+          }else{
+            let plate ={};
+            const iterator2 = noConflictCar.values();
+            plate.carType = iterator2.next().value;
+            durationArray.push(plate);
+            callback(durationArray);
           }
         }
       });

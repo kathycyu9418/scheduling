@@ -130,6 +130,7 @@ function submitForm(criteria){
       });
     }
     let result = await response.json();
+    console.log(result);
     if(result.success == "success"){
       alert(`Inserted to car ${result.car}!`);
       document.getElementById("myModal").style.display = "none";
