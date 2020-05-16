@@ -5,7 +5,6 @@ function showForm(){
   var start = new Date();
   let startTime = roundTime(start.getTime());
   document.getElementById("start").value = (startTime.getTime() + 28800000);
-  console.log(document.getElementById("start").value);
   document.getElementById("bookingTime").addEventListener('click', timePicker(startTime));
   submitForm();
 }
@@ -17,9 +16,6 @@ function roundTime(startTime) {
   return roundedTime;
 }
 
-function updateEndTime(){
-
-}
 
 function timePicker(start) {
   $('input[name="bookingTime"]').daterangepicker({
@@ -33,6 +29,8 @@ function timePicker(start) {
 
   $('#bookingTime').on('apply.daterangepicker', function(ev, picker) {
     var startDate = (parseInt(picker.startDate.valueOf()) + 28800000);
+    console.log(new Date(startDate));
+
     document.getElementById("start").value= startDate;
   });
 
@@ -73,6 +71,8 @@ var showResults = debounce(function (arg) {
 //set the value to form(last record)
 function fillValues(events) {
       $("#bookingName").val(events.bookingName);
+      $("#start_district").val(events.start_location.start_district);
+      $("#end_district").val(events.destination.end_district);
       $("#start_search_input").val(events.start_location.start_point);
       $("#start_loc_lat").val(events.start_location.lat);
       $("#start_loc_long").val(events.start_location.long);
@@ -113,7 +113,6 @@ function submitForm(criteria){
     document.getElementById("myModal").style.display = "none";
     e.preventDefault();
     var data = $('form').serialize();
-    console.log(data);
     var msg;
     if($("#submit").val() == "update"){
       msg = "Update Success!";
@@ -131,7 +130,6 @@ function submitForm(criteria){
       });
     }
     let result = await response.json();
-    console.log(result);
     if(result.success == "success"){
       alert(`Inserted to car ${result.car}!`);
       document.getElementById("myModal").style.display = "none";
@@ -194,7 +192,6 @@ dayClick: function (date) {
     element.find('.fc-title').append("<br/>" + event.description);
     $(element).css('font-size', '1em');
     var view = $('#calendar').fullCalendar('getView');
-    console.log(view.name);
     if(view.name == 'agendaDay'){
       $(element).css('min-height', '100px');
     }
@@ -242,7 +239,6 @@ dayClick: function (date) {
       let start = doc.bookingTime.start;
       let end = doc.bookingTime.end;
       let id = doc._id;
-      console.log(doc.destination.end_district);
       if(doc.destination.end_district == '新界' || doc.destination.end_district == 'New Territories'){
         console.log(color);
         color = "green";
