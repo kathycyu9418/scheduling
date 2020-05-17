@@ -118,12 +118,12 @@ app.post('/getReport', (req, res) => {
 	console.log("send submit:")
 	let form = new formidable.IncomingForm();
 	form.parse(req, (err,fields,files) => {
-		/*
+		
 		console.log("return f.s:"+ fields.start); //fields.start type -> string, not Date
 		console.log("return f.e:"+ fields.end);
 		console.log("return f.s:"+ fields.license);
 		console.log("return f.s:"+ fields.reportType);
-		*/
+		
 		
 	var today = new Date();
 	var time = today.getHours().toString() + today.getMinutes().toString() + today.getSeconds().toString();
@@ -154,8 +154,17 @@ app.post('/getReport', (req, res) => {
 	var days = (numEndDate - numStartDate)/86400000;
 	console.log("counting " + Math.ceil(days) + " days");
 
-	//criteria between 13/5/2020 00:00:00 to 15/5/2020 23:59:59
-	let cri = {$and:[{'bookingTime.start': {$gte: trueStartDate}}, {'bookingTime.start': {$lt: trueEndDate}}]}; 
+	//new
+	var ln = fields.license;
+	var cri = ""; //criteria between 13/5/2020 00:00:00 to 15/5/2020 23:59:59
+	//find all scheduling
+	if (ln == "allCars") {
+		cri = {$and:[{'bookingTime.start': {$gte: trueStartDate}}, {'bookingTime.start': {$lt: trueEndDate}}]}; 
+	}
+	else {
+		cri = {$and:[{'bookingTime.start': {$gte: trueStartDate}}, {'bookingTime.start': {$lt: trueEndDate}}, {'carType.licensePlateNumber': ln}]}; 
+	}
+	
 	
 	//report type
 	if (fields.reportType == "bookingPerDay") {
@@ -165,47 +174,43 @@ app.post('/getReport', (req, res) => {
 		//loop
   	var dataUse=[];
   	var regex = /,/gi;
-  	
   		for (x in data) {
-  	
-			dataUse.push(Object.values(data[x].id).toString().replace(regex, '') + 
-			Object.values(data[x].start_location) + 
-			Object.values(data[x].destination) + 
-			Object.values(data[x].bookingTime) + "," +
-			Object.values(data[x].carType.wheelChairNumber).toString() + "," +
-			Object.values(data[x].carType.licensePlateNumber).toString() + "," +
-			Object.values(data[x].bookingName).toString().replace(regex, '') + "," + 
-			Object.values(data[x].phoneNumber).toString().replace(regex, '') + ","+
-			Object.values(data[x].price).toString() + "," +
-			Object.values(data[x].description).toString().replace(regex, '') + "\n");
+				dataUse.push(Object.values(data[x].id).toString().replace(regex, '') + 
+				Object.values(data[x].start_location) + 
+				Object.values(data[x].destination) + 
+				Object.values(data[x].bookingTime) + "," +
+				Object.values(data[x].carType.wheelChairNumber).toString() + "," +
+				Object.values(data[x].carType.licensePlateNumber).toString() + "," +
+				Object.values(data[x].bookingName).toString().replace(regex, '') + "," + 
+				Object.values(data[x].phoneNumber).toString().replace(regex, '') + ","+
+				Object.values(data[x].price).toString() + "," +
+				Object.values(data[x].description).toString().replace(regex, '') + "\n");
 			}
-			
 			/*
 			for (y in dataUse) {
-				console.log("data in excel["+ y +"]: " + dataUse[y]);
-			}
+				console.log("data in excel["+ y +"]: " + dataUse[y]);}
 			*/
-
+			
 			var header= "booking ID"+"\t"+"Start point"+"\t"+"Start point(Chinese)"+"\t"+"Start lat"+"\t"+"Start long"+"\t"+"Start district"+"\t"+"End Point"+"\t"+"End Point(Chinese)"+"\t"+"End lat"+"\t"+"End long"+"\t"+"End district"+"\t"+"booking date time"+"\t"+"start"+"\t"+"End"+"\t"+"wheelchair number"+"\t"+"car license plate number"+"\t"+"Name"+"\t"+"phone number"+"\t"+"price"+"\t"+"description"+"\n";
 	
 			//const cloneSheepsES6 = [...sheeps]; //deep copy
 			var row=[];
 			row = [...dataUse];
-			
-			//console.log(row[0] + row[1]);
 	
-	writeStream.write(header);
-		for (rr in row) {
-	writeStream.write(row[rr]);
-		}
-
-	writeStream.close();
-	})}})
+			writeStream.write(header);
+				for (rr in row) {
+			writeStream.write(row[rr]);
+				}
+			
+			writeStream.close();
+			})}
+		
+	
 	let curDir = process.cwd();
 	console.log("Report is located on " + curDir);
 	res.render('calendar', {licensePlateNumber: "A", cars:carsName});
 	
-})});
+})})});
 
 //Edit car
 app.get('/editCar/:licensePlateNumber', (req, res) => {
