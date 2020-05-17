@@ -75,6 +75,207 @@ app.post('/insert_carType', (req, res) => {
   }
 });
 
+//new code   result==carsAll==showAllInfo;
+app.get('/getCar/:licensePlateNumber', (req, res) => {
+	let cars = findAll({});
+  cars.then(function(result) {
+		let carsAll = new Set();
+			carsAll = result;
+			let carsName = new Set();
+				result.forEach((item) => {
+					carsName.add(item.licensePlateNumber);
+				})
+			result.forEach((i) => {
+				if (i.licensePlateNumber == req.params.licensePlateNumber)
+					carsAll = i;
+			})
+    	res.render('manageCars', {licensePlateNumber: req.params.licensePlateNumber, cars: carsName, c:carsAll});
+		console.log(carsAll);
+		
+	
+  });
+});
+
+//generate report
+app.get('/report', (req, res) => {
+	let cars = findAll({});
+  cars.then((result) => {
+  	let carsName = new Set();
+  		result.forEach((item) => {
+  			carsName.add(item.licensePlateNumber);
+  		})
+    res.render('report.ejs', {licensePlateNumber: "A", cars: carsName});
+	})
+});
+
+app.post('/getReport', (req, res) => {
+	let cars = findAll({});
+  cars.then((result) => {
+  	let carsName = new Set();
+  		result.forEach((item) => {
+  			carsName.add(item.licensePlateNumber);
+  		})
+	console.log("send submit:")
+	let form = new formidable.IncomingForm();
+	form.parse(req, (err,fields,files) => {
+		/*
+		console.log("return f.s:"+ fields.start); //fields.start type -> string, not Date
+		console.log("return f.e:"+ fields.end);
+		console.log("return f.s:"+ fields.license);
+		console.log("return f.s:"+ fields.reportType);
+		*/
+		
+	var today = new Date();
+	var time = today.getHours().toString() + today.getMinutes().toString() + today.getSeconds().toString();
+	var writeStream = fs.createWriteStream(fields.reportType+"_"+fields.license+"_"+time+".xls");
+	console.log(fields.reportType+"_"+fields.license+"_"+time+".xls is exported on current folder.")
+
+	let ee = fields.start;
+	//console.log("ee: " + ee);
+	let yyyy = ee.substr(0,4);
+	let mm = ee.substr(5,2);
+	let dd = ee.substr(8,2);
+	//console.log("start yyyy-mm-dd: " + yyyy +"-"+ mm +"-"+ dd);
+	var trueStartDate = new Date(yyyy, mm-1, dd, 0, 0, 0);
+	//console.log("trueStartDate:" + trueStartDate);
+	var numStartDate = trueStartDate.valueOf();
+	//console.log("numStartDate:" + numStartDate);
+	
+	let ff = fields.end;
+	let yyy = ff.substr(0,4);
+	let m = ff.substr(5,2);
+	let d = ff.substr(8,2);
+	//console.log("end yyyy-mm-dd: " + yyy +"-"+ m +"-"+ d);
+	var trueEndDate = new Date(yyy, m-1, d, 23, 59, 59);
+	//console.log("trueEndDate:" + trueEndDate);
+	var numEndDate = trueEndDate.valueOf();
+	//console.log("numEndDate:" + numEndDate);
+	
+	var days = (numEndDate - numStartDate)/86400000;
+	console.log("counting " + Math.ceil(days) + " days");
+
+	//criteria between 13/5/2020 00:00:00 to 15/5/2020 23:59:59
+	let cri = {$and:[{'bookingTime.start': {$gte: trueStartDate}}, {'bookingTime.start': {$lt: trueEndDate}}]}; 
+	
+	//report type
+	if (fields.reportType == "bookingPerDay") {
+		let bo = phoneNumber.find(cri, function (err,data) {
+			//console.log(data);
+			
+		//loop
+  	var dataUse=[];
+  	var regex = /,/gi;
+  	
+  		for (x in data) {
+  	
+			dataUse.push(Object.values(data[x].id).toString().replace(regex, '') + 
+			Object.values(data[x].start_location) + 
+			Object.values(data[x].destination) + 
+			Object.values(data[x].bookingTime) + "," +
+			Object.values(data[x].carType.wheelChairNumber).toString() + "," +
+			Object.values(data[x].carType.licensePlateNumber).toString() + "," +
+			Object.values(data[x].bookingName).toString().replace(regex, '') + "," + 
+			Object.values(data[x].phoneNumber).toString().replace(regex, '') + ","+
+			Object.values(data[x].price).toString() + "," +
+			Object.values(data[x].description).toString().replace(regex, '') + "\n");
+			}
+			
+			/*
+			for (y in dataUse) {
+				console.log("data in excel["+ y +"]: " + dataUse[y]);
+			}
+			*/
+
+			var header= "booking ID"+"\t"+"Start point"+"\t"+"Start point(Chinese)"+"\t"+"Start lat"+"\t"+"Start long"+"\t"+"Start district"+"\t"+"End Point"+"\t"+"End Point(Chinese)"+"\t"+"End lat"+"\t"+"End long"+"\t"+"End district"+"\t"+"booking date time"+"\t"+"start"+"\t"+"End"+"\t"+"wheelchair number"+"\t"+"car license plate number"+"\t"+"Name"+"\t"+"phone number"+"\t"+"price"+"\t"+"description"+"\n";
+	
+			//const cloneSheepsES6 = [...sheeps]; //deep copy
+			var row=[];
+			row = [...dataUse];
+			
+			//console.log(row[0] + row[1]);
+	
+	writeStream.write(header);
+		for (rr in row) {
+	writeStream.write(row[rr]);
+		}
+
+	writeStream.close();
+	})}})
+	let curDir = process.cwd();
+	console.log("Report is located on " + curDir);
+	res.render('calendar', {licensePlateNumber: "A", cars:carsName});
+	
+})});
+
+//Edit car
+app.get('/editCar/:licensePlateNumber', (req, res) => {
+	let cars = findAllCars({});
+  cars.then(function(result) {
+    res.render('editCar', {licensePlateNumber: req.params.licensePlateNumber, cars: result});
+  });
+});
+
+//Edited car(update)
+app.post('/getCar/:licensePlateNumber', (req, res) => {
+	console.log("***Edit car"+ req.params.licensePlateNumber);
+	let cars = findAll({});
+  cars.then(function(result) {
+		let carsAll = new Set();
+			carsAll = result;
+			result.forEach((i) => {
+				if (i.licensePlateNumber == req.params.licensePlateNumber)
+					carsAll = i;
+			})
+		let id= carsAll._id;	
+	let form = new formidable.IncomingForm();
+	form.parse(req, (err,fields,files) => {
+	let licensePlateNumber = req.params.licensePlateNumber;
+		carType.findOne({_id:id}, (err, result) =>{
+			assert.equal(err,null);
+			console.log("return:"+ result);
+			console.log("return r.d:"+ result.description);
+			console.log("return f.d:"+ fields.description);
+			
+			result.description = fields.description;
+			console.log("Edit description"+ fields.description);
+			result.wheelChairNumber = fields.wheelChairNumber;
+			console.log("Edit wheelChairNumber"+ fields.wheelChairNumber);
+			result.passegerNumber = fields.passegerNumber;
+			console.log("Edit passegerNumber"+ fields.passegerNumber);
+				result.save((err,updatedResult) => {
+					assert.equal(err,null);
+					res.status(302).redirect(`/getCar/${licensePlateNumber}`);
+				
+		})})
+		})
+	})
+});
+
+//delete car
+app.get('/managerCar/:licensePlateNumber', (req,res) => {
+	console.log("***Delete car"+ req.params.licensePlateNumber);
+	let cars = findAll({});
+  cars.then(function(result) {
+		let carsAll = new Set();
+			carsAll = result;
+			result.forEach((i) => {
+				if (i.licensePlateNumber == req.params.licensePlateNumber)
+					carsAll = i;
+			})
+		let id= carsAll._id; //the car is going to be deleted
+		carType.findOne({_id:id}, (err, carid) => {
+			console.log("del: "+carid)
+		carType.findByIdAndDelete(id, (error) =>{
+			assert.equal(error,null);
+			});
+			let cars = findAllCars({});
+  		cars.then(function(resultt) {
+			res.render('calendar', {licensePlateNumber: "A", cars:resultt});
+			console.log(resultt);
+		})})
+	})
+});
+
 app.post('/insert_order', (req, res) => {
     const result = Joi.validate(req.body, schedulingScheme); //validate form input
     if(result.error){
@@ -354,6 +555,20 @@ const findAllCars = (criteria) =>{
     carType.find(criteria, function (err, data) {
       data.forEach((item) => {
         cars.add(item.licensePlateNumber);
+      });
+      resolve(cars);
+    });
+  })
+};
+
+//find all car's details
+//new code
+const findAll = (criteria) =>{
+  return new Promise((resolve, reject) => {
+    let cars = new Set();
+    carType.find(criteria, function (err, data) {
+      data.forEach((item) => {
+        	cars.add(item);
       });
       resolve(cars);
     });

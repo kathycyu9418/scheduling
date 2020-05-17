@@ -55,6 +55,17 @@
             </div>
             <a class="item" href="/">Home</a>
             <a class="item" href="/insertCar">Insert a new car type</a>
+            <!--new code-->
+						<div class="dropdown">
+			  			<a class="item" href="/manageCar">Manage car</a>
+								<div id="myDropdown" class="dropdown-content">
+									<ul>
+										<%cars.forEach((car)=> {%>
+											<li><a class="carCalendar" href="/getCar/<%=car%>"><%=car%></a></li>
+										<%})%>
+									<ul>
+								</div>
+						</div>
             <a class="item" onclick="showForm()">Create New Schedule</a>
             <div class="dropdown">
             <a class="item" id="carList">Car List</a>
@@ -66,6 +77,7 @@
             </ul>
           </div>
           </div>
+          	<a class="item" href="/report">Report</a>
             <a class="item" href="/logout">Logout</a>
             <!--<input type="search" onkeyup="showResults(this.value)" placeholder="search.." id="search" name="search">
             <div style="position: relative;width: 100%;">

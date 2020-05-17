@@ -1,0 +1,57 @@
+<% include partials/header %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<style>
+input {
+  margin: 10px 5px 25px 5px;
+}
+button {
+	margin: 10px 80px 10px 2px;
+	color: white;
+	font-size:14px;
+	background-color:#77b55a;
+	padding:10px 25px;
+	text-decoration:none;
+	text-shadow:0px 1px 0px #2f6627;
+	border-radius:4px;
+}
+
+label, legend {
+	font-size:16px;
+}
+
+</style>
+</head>
+<body>
+	<form action="/getCar/<%=licensePlateNumber%>" method="POST" enctype="multipart/form-data">
+	<fieldset>
+  	<legend>Cars managment</legend>	
+			<br>
+    	<label>License Plate of Car: <%=licensePlateNumber%></label>
+			<br><br>
+      <label>Description:</label>
+			<input type="text" name="description">
+			<br>
+      <label>Number of Wheelchair:</label>
+			<br>
+			<input type="radio" name="wheelChairNumber" value="0"/>0
+			<input type="radio" name="wheelChairNumber" value="1"/>1
+			<input type="radio" name="wheelChairNumber" value="2"/>2
+			<br>
+			<label>Number of passeger:</label>
+			<br>
+			<input type="radio" name="passegerNumber" value="0"/>0
+			<input type="radio" name="passegerNumber" value="1"/>1
+			<input type="radio" name="passegerNumber" value="2"/>2
+			<input type="radio" name="passegerNumber" value="3"/>3
+			<input type="radio" name="passegerNumber" value="4"/>4
+		  <br>
+			<button type="submit">Update</button>
+ 
+	</fieldset> 
+	</form>
+<br><a href="javascript: history.go(-1)">Back</a>
+</body>
+</html>
+<% include partials/footer %>

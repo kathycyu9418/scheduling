@@ -1,0 +1,55 @@
+<% include partials/header %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<style>
+input {
+  margin: 10px 5px 25px 20px;
+}
+button {
+	margin: 10px 80px 10px 2px;
+	color: white;
+	font-size:14px;
+	background-color:#77b55a;
+	padding:10px 25px;
+	text-decoration:none;
+	text-shadow:0px 1px 0px #2f6627;
+	border-radius:4px;
+}
+
+label, legend {
+	font-size:16px;
+}
+</style>
+</head>
+<body>
+	<form action="/getReport" method="POST" enctype="multipart/form-data">
+	<fieldset>
+  	<legend>Select report to generate:</legend>	
+			<br>
+      <label>Period:</label>
+			<br>
+			<label>Start Date:</label> <input type="date" name="start">
+			<label>to End Date:</label> <input type="date" name="end">
+			<br>
+			<label>Car(s):</label>
+			<br>
+			<%cars.forEach((car)=> {%>
+			<input type="radio" name="license" value="<%=car%>"/><%=car%>
+			<%})%>
+			<input type="radio" name="license" value="allCars"/>All cars
+			<br>
+			<label>Report type:</label>
+			<br>
+			<input type="radio" name="reportType" value="bookingPerDay"/>Booking Per Day
+			<input type="radio" name="reportType" value="AmountPerBooking"/>Amount Per Booking
+			<input type="radio" name="reportType" value="CustomerInfo"/>Customer Information
+		  <br>
+			<button type="submit">Submit</button>
+ 
+	</fieldset> 
+	</form>
+<br><a href="javascript: history.go(-1)">Back</a>
+</body>
+</html>
+<% include partials/footer %>
