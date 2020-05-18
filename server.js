@@ -169,16 +169,16 @@ app.post('/getReport', (req, res) => {
 	//report type
 	if (fields.reportType == "bookingPerDay") {
 		let bo = phoneNumber.find(cri, function (err,data) {
-			//console.log(data);
+			console.log(data);
 			
 		//loop
   	var dataUse=[];
   	var regex = /,/gi;
   		for (x in data) {
-				dataUse.push(Object.values(data[x].id).toString().replace(regex, '') + 
-				Object.values(data[x].start_location) + 
-				Object.values(data[x].destination) + 
-				Object.values(data[x].bookingTime) + "," +
+				dataUse.push(Object.values(data[x].id).toString().replace(regex, '') + "," +
+				Object.values(data[x].start_location.start_point).toString().replace(regex, '') + "," +
+				Object.values(data[x].destination.dest).toString().replace(regex, '') + "," +
+				Object.values(data[x].bookingTime.booking).toString().replace(regex, '') + "," +
 				Object.values(data[x].carType.wheelChairNumber).toString() + "," +
 				Object.values(data[x].carType.licensePlateNumber).toString() + "," +
 				Object.values(data[x].bookingName).toString().replace(regex, '') + "," + 
@@ -186,12 +186,12 @@ app.post('/getReport', (req, res) => {
 				Object.values(data[x].price).toString() + "," +
 				Object.values(data[x].description).toString().replace(regex, '') + "\n");
 			}
-			/*
+			
 			for (y in dataUse) {
 				console.log("data in excel["+ y +"]: " + dataUse[y]);}
-			*/
 			
-			var header= "booking ID"+"\t"+"Start point"+"\t"+"Start point(Chinese)"+"\t"+"Start lat"+"\t"+"Start long"+"\t"+"Start district"+"\t"+"End Point"+"\t"+"End Point(Chinese)"+"\t"+"End lat"+"\t"+"End long"+"\t"+"End district"+"\t"+"booking date time"+"\t"+"start"+"\t"+"End"+"\t"+"wheelchair number"+"\t"+"car license plate number"+"\t"+"Name"+"\t"+"phone number"+"\t"+"price"+"\t"+"description"+"\n";
+			
+			var header= "booking ID"+"\t"+"Start point"+"\t"+"End Point"+"\t"+"booking date time"+"\t"+"wheelchair number"+"\t"+"car license plate number"+"\t"+"Name"+"\t"+"phone number"+"\t"+"price"+"\t"+"description"+"\n";
 	
 			//const cloneSheepsES6 = [...sheeps]; //deep copy
 			var row=[];
@@ -208,9 +208,10 @@ app.post('/getReport', (req, res) => {
 	
 	let curDir = process.cwd();
 	console.log("Report is located on " + curDir);
+
 	res.render('calendar', {licensePlateNumber: "A", cars:carsName});
-	
-})})});
+
+})})});	
 
 //Edit car
 app.get('/editCar/:licensePlateNumber', (req, res) => {
@@ -759,6 +760,13 @@ const checkShorterRoad = (schedules, newEvent, noConflictCar, callback) => {
           }
         }
       });
+    }else{
+      let plate ={};
+      const iterator2 = noConflictCar.values();
+      plate.carType = iterator2.next().value;
+      durationArray.push(plate);
+      console.log(durationArray);
+      callback(durationArray);
     }
   }
 
