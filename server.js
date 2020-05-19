@@ -395,13 +395,14 @@ app.get('/getPrice', (req, res) => {
   calculateDistance(start,end, (result) => {
     let distance = result.distance.value;
     let price = 24;
-    let t = (distance - 2000)%200;
+    let distance2 = distance - 2000;
+    let t = distance2/200;
     //console.log(t);
     //console.log(distance);
     if(distance < 2000){
       res.json({"price":price});
     }else{
-      for(let i =0; i<t; i++){
+      for(let i =0; i<Math.round(t); i++){
         if(price < 83.5){
           price += 1.7;
         }else{
@@ -727,12 +728,12 @@ const checkShorterRoad = (schedules, newEvent, noConflictCar, callback) => {
     let result = schedules.filter(carSchedule => (carSchedule.carType.licensePlateNumber == temp));
     result.push(newEvent);
     //console.log(result.length);
-    if(result.length > 2){
+    if(result.length > 1){
       sortRange(result, (sortedRanges) => {
         //console.log(sortedRanges);
         const index = (element) => element.bookingTime.start == newEvent.bookingTime.start;
         let p = sortedRanges.findIndex(index);
-        if(p !=0){
+        if(p !=0 && result.length >2){
           for (let i =0; i < 2; i++){
             let size = sortedRanges[p].bookingTime.start - sortedRanges[p-1].bookingTime.end;
             let size2 = sortedRanges[p+1].bookingTime.start - sortedRanges[p].bookingTime.end;
@@ -795,11 +796,28 @@ const checkShorterRoad = (schedules, newEvent, noConflictCar, callback) => {
             }
           }
         }else{
-          let size = sortedRanges[p+1].bookingTime.start - sortedRanges[p].bookingTime.end;
-          if(size < tm) {
+          console.log(p);
+          if(p == 1) {
+            tempArray.push(sortedRanges[p-1]);
+            tempArray.push(sortedRanges[p]);
+            calculateDistance(tempArray[0].destination, tempArray[1].start_location, (duration) =>{
+              let plate = {};
+              plate.carType = tempArray[0].carType.licensePlateNumber;
+              plate.duration = duration.duration.value;
+              plate.distance = duration.distance.value;
+              durationArray.push(plate);
+              count++;
+              if(count == total){
+                sortDuration(durationArray, (sortedDuration) => {
+                  callback(sortedDuration);
+                })
+
+              }
+            });
+          }else{
             tempArray.push(sortedRanges[p]);
             tempArray.push(sortedRanges[p+1]);
-            calculateDistance(tempArray[0].start_location, tempArray[1].destination, (duration) =>{
+            calculateDistance(tempArray[1].start_location, tempArray[0].destination, (duration) =>{
               let plate = {};
               plate.carType = tempArray[1].carType.licensePlateNumber;
               plate.duration = duration.duration.value;
@@ -813,13 +831,6 @@ const checkShorterRoad = (schedules, newEvent, noConflictCar, callback) => {
 
               }
             });
-          }else{
-            let plate ={};
-            const iterator2 = noConflictCar.values();
-            plate.carType = iterator2.next().value;
-            durationArray.push(plate);
-            //console.log(durationArray);
-            callback(durationArray);
           }
         }
       });
