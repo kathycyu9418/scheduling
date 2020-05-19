@@ -192,13 +192,13 @@ app.post('/getReport', (req, res) => {
 				console.log("data in excel["+ y +"]: " + dataUse[y]);}
 			*/
 
-			var header= "booking ID"+"\t"+"Start point"+"\t"+"Start point(Chinese)"+"\t"+"Start lat"+"\t"+"Start long"+"\t"+"Start district"+"\t"+"End Point"+"\t"+"End Point(Chinese)"+"\t"+"End lat"+"\t"+"End long"+"\t"+"End district"+"\t"+"booking date time"+"\t"+"start"+"\t"+"End"+"\t"+"wheelchair number"+"\t"+"car license plate number"+"\t"+"Name"+"\t"+"phone number"+"\t"+"price"+"\t"+"description"+"\n";
+			var exhead= "booking ID"+"\t"+"Start point"+"\t"+"Start point(Chinese)"+"\t"+"Start lat"+"\t"+"Start long"+"\t"+"Start district"+"\t"+"End Point"+"\t"+"End Point(Chinese)"+"\t"+"End lat"+"\t"+"End long"+"\t"+"End district"+"\t"+"booking date time"+"\t"+"start"+"\t"+"End"+"\t"+"wheelchair number"+"\t"+"car license plate number"+"\t"+"Name"+"\t"+"phone number"+"\t"+"price"+"\t"+"description"+"\n";
 
 			//const cloneSheepsES6 = [...sheeps]; //deep copy
 			var row=[];
 			row = [...dataUse];
 
-			writeStream.write(header);
+			writeStream.write(exhead);
 				for (rr in row) {
 			writeStream.write(row[rr]);
 				}
