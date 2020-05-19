@@ -140,15 +140,37 @@ function submitForm(criteria){
       $("#calendar").fullCalendar('refetchEvents');
     }else{
       document.getElementById("myModal").style.display = "block";
-      alert(result);
+      //console.log(result[0].start);
+      document.getElementById("cars").options[0].text = new Date(result[0].start - 8*60*60*1000);
+      document.getElementById("cars").options[1].text = new Date(result[1].start - 8*60*60*1000);
+      document.getElementById("cars").options[2].text = new Date(result[2].start - 8*60*60*1000);
+      document.getElementById("times").style.display = "block";
     };
   };
 };
-
+function singleSelectChangeText() {
+  //Getting Value
+  var selObj = document.getElementById("cars");
+  var selValue = selObj.options[selObj.selectedIndex].text;
+  let date = new Date(selValue);
+  let day = date.getDate();
+  let month = date.getMonth()+1;
+  let hour = date.getHours();
+  let minutes = date.getMinutes();
+  let string = `${month}-${day} ${hour}:${minutes}`;
+  //Setting Value
+  document.getElementById("bookingTime").value = string;
+  document.getElementById("start").value = date.getTime() + 8*60*60*1000;
+  document.getElementById("times").style.display = "none";
+  //console.log(document.getElementById("start").value);
+}
 $(document.getElementsByClassName("close")[0]).click(function() {
   var modal = document.getElementById("myModal"); // Get the modal
   modal.style.display = "none";// When the user clicks on <span> (x), close the modal
   $("#submit").val("submit");
+})
+$(document.getElementsByClassName("select-close")[0]).click(function() {
+    document.getElementById("times").style.display = "none";
 })
 
 //handle calendar

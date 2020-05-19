@@ -90,9 +90,9 @@ app.get('/getCar/:licensePlateNumber', (req, res) => {
 					carsAll = i;
 			})
     	res.render('manageCars', {licensePlateNumber: req.params.licensePlateNumber, cars: carsName, c:carsAll});
-		console.log(carsAll);
-		
-	
+		//console.log(carsAll);
+
+
   });
 });
 
@@ -115,20 +115,20 @@ app.post('/getReport', (req, res) => {
   		result.forEach((item) => {
   			carsName.add(item.licensePlateNumber);
   		})
-	console.log("send submit:")
+	//console.log("send submit:")
 	let form = new formidable.IncomingForm();
 	form.parse(req, (err,fields,files) => {
-		
-		console.log("return f.s:"+ fields.start); //fields.start type -> string, not Date
-		console.log("return f.e:"+ fields.end);
-		console.log("return f.s:"+ fields.license);
-		console.log("return f.s:"+ fields.reportType);
-		
-		
+
+		//console.log("return f.s:"+ fields.start); //fields.start type -> string, not Date
+		//console.log("return f.e:"+ fields.end);
+		//console.log("return f.s:"+ fields.license);
+		//console.log("return f.s:"+ fields.reportType);
+
+
 	var today = new Date();
 	var time = today.getHours().toString() + today.getMinutes().toString() + today.getSeconds().toString();
 	var writeStream = fs.createWriteStream(fields.reportType+"_"+fields.license+"_"+time+".xls");
-	console.log(fields.reportType+"_"+fields.license+"_"+time+".xls is exported on current folder.")
+	//console.log(fields.reportType+"_"+fields.license+"_"+time+".xls is exported on current folder.")
 
 	let ee = fields.start;
 	//console.log("ee: " + ee);
@@ -140,7 +140,7 @@ app.post('/getReport', (req, res) => {
 	//console.log("trueStartDate:" + trueStartDate);
 	var numStartDate = trueStartDate.valueOf();
 	//console.log("numStartDate:" + numStartDate);
-	
+
 	let ff = fields.end;
 	let yyy = ff.substr(0,4);
 	let m = ff.substr(5,2);
@@ -150,7 +150,7 @@ app.post('/getReport', (req, res) => {
 	//console.log("trueEndDate:" + trueEndDate);
 	var numEndDate = trueEndDate.valueOf();
 	//console.log("numEndDate:" + numEndDate);
-	
+
 	var days = (numEndDate - numStartDate)/86400000;
 	console.log("counting " + Math.ceil(days) + " days");
 
@@ -159,59 +159,59 @@ app.post('/getReport', (req, res) => {
 	var cri = ""; //criteria between 13/5/2020 00:00:00 to 15/5/2020 23:59:59
 	//find all scheduling
 	if (ln == "allCars") {
-		cri = {$and:[{'bookingTime.start': {$gte: trueStartDate}}, {'bookingTime.start': {$lt: trueEndDate}}]}; 
+		cri = {$and:[{'bookingTime.start': {$gte: trueStartDate}}, {'bookingTime.start': {$lt: trueEndDate}}]};
 	}
 	else {
-		cri = {$and:[{'bookingTime.start': {$gte: trueStartDate}}, {'bookingTime.start': {$lt: trueEndDate}}, {'carType.licensePlateNumber': ln}]}; 
+		cri = {$and:[{'bookingTime.start': {$gte: trueStartDate}}, {'bookingTime.start': {$lt: trueEndDate}}, {'carType.licensePlateNumber': ln}]};
 	}
-	
-	
+
+
 	//report type
 	if (fields.reportType == "bookingPerDay") {
 		let bo = phoneNumber.find(cri, function (err,data) {
-			console.log(data);
-			
+			//console.log(data);
+
 		//loop
   	var dataUse=[];
   	var regex = /,/gi;
   		for (x in data) {
-				dataUse.push(Object.values(data[x].id).toString().replace(regex, '') + "," +
-				Object.values(data[x].start_location.start_point).toString().replace(regex, '') + "," +
-				Object.values(data[x].destination.dest).toString().replace(regex, '') + "," +
-				Object.values(data[x].bookingTime.booking).toString().replace(regex, '') + "," +
+        console.log(data[x].price);
+				dataUse.push(Object.values(data[x].id).toString().replace(regex, '') +
+				Object.values(data[x].start_location) +
+				Object.values(data[x].destination) +
+				Object.values(data[x].bookingTime) + "," +
 				Object.values(data[x].carType.wheelChairNumber).toString() + "," +
 				Object.values(data[x].carType.licensePlateNumber).toString() + "," +
-				Object.values(data[x].bookingName).toString().replace(regex, '') + "," + 
+				Object.values(data[x].bookingName).toString().replace(regex, '') + "," +
 				Object.values(data[x].phoneNumber).toString().replace(regex, '') + ","+
 				Object.values(data[x].price).toString() + "," +
 				Object.values(data[x].description).toString().replace(regex, '') + "\n");
 			}
-			
+			/*
 			for (y in dataUse) {
 				console.log("data in excel["+ y +"]: " + dataUse[y]);}
-			
-			
-			var header= "booking ID"+"\t"+"Start point"+"\t"+"End Point"+"\t"+"booking date time"+"\t"+"wheelchair number"+"\t"+"car license plate number"+"\t"+"Name"+"\t"+"phone number"+"\t"+"price"+"\t"+"description"+"\n";
-	
+			*/
+
+			var header= "booking ID"+"\t"+"Start point"+"\t"+"Start point(Chinese)"+"\t"+"Start lat"+"\t"+"Start long"+"\t"+"Start district"+"\t"+"End Point"+"\t"+"End Point(Chinese)"+"\t"+"End lat"+"\t"+"End long"+"\t"+"End district"+"\t"+"booking date time"+"\t"+"start"+"\t"+"End"+"\t"+"wheelchair number"+"\t"+"car license plate number"+"\t"+"Name"+"\t"+"phone number"+"\t"+"price"+"\t"+"description"+"\n";
+
 			//const cloneSheepsES6 = [...sheeps]; //deep copy
 			var row=[];
 			row = [...dataUse];
-	
+
 			writeStream.write(header);
 				for (rr in row) {
 			writeStream.write(row[rr]);
 				}
-			
+
 			writeStream.close();
 			})}
-		
-	
-	let curDir = process.cwd();
-	console.log("Report is located on " + curDir);
 
+
+	let curDir = process.cwd();
+	//console.log("Report is located on " + curDir);
 	res.render('calendar', {licensePlateNumber: "A", cars:carsName});
 
-})})});	
+})})});
 
 //Edit car
 app.get('/editCar/:licensePlateNumber', (req, res) => {
@@ -223,7 +223,7 @@ app.get('/editCar/:licensePlateNumber', (req, res) => {
 
 //Edited car(update)
 app.post('/getCar/:licensePlateNumber', (req, res) => {
-	console.log("***Edit car"+ req.params.licensePlateNumber);
+	//console.log("***Edit car"+ req.params.licensePlateNumber);
 	let cars = findAll({});
   cars.then(function(result) {
 		let carsAll = new Set();
@@ -232,26 +232,26 @@ app.post('/getCar/:licensePlateNumber', (req, res) => {
 				if (i.licensePlateNumber == req.params.licensePlateNumber)
 					carsAll = i;
 			})
-		let id= carsAll._id;	
+		let id= carsAll._id;
 	let form = new formidable.IncomingForm();
 	form.parse(req, (err,fields,files) => {
 	let licensePlateNumber = req.params.licensePlateNumber;
 		carType.findOne({_id:id}, (err, result) =>{
 			assert.equal(err,null);
-			console.log("return:"+ result);
-			console.log("return r.d:"+ result.description);
-			console.log("return f.d:"+ fields.description);
-			
+			//console.log("return:"+ result);
+			//console.log("return r.d:"+ result.description);
+			//console.log("return f.d:"+ fields.description);
+
 			result.description = fields.description;
-			console.log("Edit description"+ fields.description);
+			//console.log("Edit description"+ fields.description);
 			result.wheelChairNumber = fields.wheelChairNumber;
-			console.log("Edit wheelChairNumber"+ fields.wheelChairNumber);
+			//console.log("Edit wheelChairNumber"+ fields.wheelChairNumber);
 			result.passegerNumber = fields.passegerNumber;
-			console.log("Edit passegerNumber"+ fields.passegerNumber);
+			//console.log("Edit passegerNumber"+ fields.passegerNumber);
 				result.save((err,updatedResult) => {
 					assert.equal(err,null);
 					res.status(302).redirect(`/getCar/${licensePlateNumber}`);
-				
+
 		})})
 		})
 	})
@@ -259,7 +259,7 @@ app.post('/getCar/:licensePlateNumber', (req, res) => {
 
 //delete car
 app.get('/managerCar/:licensePlateNumber', (req,res) => {
-	console.log("***Delete car"+ req.params.licensePlateNumber);
+	//console.log("***Delete car"+ req.params.licensePlateNumber);
 	let cars = findAll({});
   cars.then(function(result) {
 		let carsAll = new Set();
@@ -270,14 +270,14 @@ app.get('/managerCar/:licensePlateNumber', (req,res) => {
 			})
 		let id= carsAll._id; //the car is going to be deleted
 		carType.findOne({_id:id}, (err, carid) => {
-			console.log("del: "+carid)
+			//console.log("del: "+carid)
 		carType.findByIdAndDelete(id, (error) =>{
 			assert.equal(error,null);
 			});
 			let cars = findAllCars({});
   		cars.then(function(resultt) {
 			res.render('calendar', {licensePlateNumber: "A", cars:resultt});
-			console.log(resultt);
+			//console.log(resultt);
 		})})
 	})
 });
@@ -289,18 +289,20 @@ app.post('/insert_order', (req, res) => {
       res.status(400).json(result.error.details[0].message);
     }else {
       let event = req.body;
-      console.log(new Date (parseInt(event.start)));
+      //console.log(new Date (parseInt(event.start)));
       let bookingDay = event.start - (event.start % 86400000);
       let afterDay = bookingDay + (24 * 60 * 60 * 1000);
-      console.log(new Date(bookingDay));
-      let criteria = {'bookingTime.start': {$gte: bookingDay, $lte:afterDay}};;
+      //console.log(new Date(bookingDay));
+      let criteria = {'bookingTime.start': {$gte: bookingDay, $lte:afterDay}};
+      let criteria2 = {'bookingTime.start': {$gte: bookingDay}};
       let newEvent = convertReqBody(event);
       const getAllInfo = Promise.all([
         roundEndTime(newEvent),
         findAllCars({}),
-        findAllSchedules(criteria)
+        findAllSchedules(criteria),
+        findAllSchedules(criteria2)
       ])
-      .then(([endTime, cars, schedules]) => {
+      .then(([endTime, cars, schedules, schedule2]) => {
         newEvent.bookingTime.end = endTime;
         if(schedules.length == 0 && cars.size > 0){
           const iterator1 = cars.values();
@@ -314,16 +316,21 @@ app.post('/insert_order', (req, res) => {
           });
         }else{
           //console.log(cars);
-          let result = checkTimeConflict(schedules, newEvent, cars); // check time conflict
+          let newCars = cars;
+          //console.log(newCars);
+          let result = checkTimeConflict(schedules, newEvent, newCars); // check time conflict
           if(result.ranges[0].cars.size !=0){
             checkShorterRoad(schedules, newEvent, result.ranges[0].cars, callback =>{
               if(callback.length !=0){
                 newEvent.carType.licensePlateNumber = callback[0].carType;
                 let insert = new phoneNumber(newEvent);
                   insert.save(function (err) {
-                    if (err) return handleError(err);
-                    // saved!
-                    res.json({success:"success", car:newEvent.carType.licensePlateNumber});
+                    if(err){
+                      return handleError(err);
+                    }else{
+                      // saved!
+                      res.json({success:"success", car:newEvent.carType.licensePlateNumber});
+                    }
                   });
               }else{
                 const iterator1 = result.ranges[0].cars.values();
@@ -337,7 +344,9 @@ app.post('/insert_order', (req, res) => {
               }
             })
           }else{
-            res.json("Time Conflict");
+            showOptionalTimeList(schedule2, newEvent, (callback) =>{
+              res.json(callback);
+            });
           }
         }
       });
@@ -387,8 +396,8 @@ app.get('/getPrice', (req, res) => {
     let distance = result.distance.value;
     let price = 24;
     let t = (distance - 2000)%200;
-    console.log(t);
-    console.log(distance);
+    //console.log(t);
+    //console.log(distance);
     if(distance < 2000){
       res.json({"price":price});
     }else{
@@ -405,14 +414,14 @@ app.get('/getPrice', (req, res) => {
 });
 
 app.put('/update/:id', (req,res) => {
-  console.log(req.body);
+  //console.log(req.body);
   const result = Joi.validate(req.body, schedulingScheme);
     if(result.error){
       res.status(400).json(result.error.details[0].message);
     }else {
       let events = convertReqBody(req.body);
       updateEvent(events, (check) =>{
-        console.log(check);
+        //console.log(check);
         if(check != "Time Conflict"){
           updateDoc(req.params.id, check,(result) => {
             console.log(result);
@@ -427,11 +436,56 @@ app.put('/update/:id', (req,res) => {
     }
 
 });
-
+const showOptionalTimeList = (schedules, event, callback) => {
+  //console.log(event);
+  let count = 0;
+  let newEvent1 = event;
+  let newEvent2 = event;
+  let newEvent3 = event;
+  let available = [];
+  while(true){
+    newEvent1.bookingTime.start = parseInt(newEvent1.bookingTime.start) - (5*1000*60);
+    newEvent1.bookingTime.end = newEvent1.bookingTime.end - (5*1000*60);
+    let result1 = overlap(schedules, newEvent1);
+    if(result1.overlap == false){
+      let times = {};
+      times.start = newEvent1.bookingTime.start;
+      times.end = newEvent1.bookingTime.end;
+      available.push(times);
+      break;
+    }
+  }
+  while(true){
+    newEvent2.bookingTime.start = parseInt(newEvent2.bookingTime.start) + (5*1000*60);
+    newEvent2.bookingTime.end = newEvent2.bookingTime.end + (5*1000*60);
+    let result2 = overlap(schedules, newEvent2);
+    if(result2.overlap == false){
+      let times = {};
+      times.start = newEvent2.bookingTime.start;
+      times.end = newEvent2.bookingTime.end;
+      available.push(times);
+      break;
+    }
+  }
+  while(true){
+    newEvent3.bookingTime.start = parseInt(newEvent3.bookingTime.start) + (60*1000*60*24);
+    newEvent3.bookingTime.end = newEvent3.bookingTime.end + (60*1000*60*24);
+    let result3 = overlap(schedules, newEvent3);
+    if(result3.overlap == false){
+      let times = {};
+      times.start = newEvent3.bookingTime.start;
+      times.end = newEvent3.bookingTime.end;
+      available.push(times);
+      break;
+    }
+  }
+  callback(available);
+}
+//update schedule
 const updateEvent = (event, callback) => {
   let bookingDay = event.bookingTime.start - (event.bookingTime.start % 86400000);
   let afterDay = bookingDay + (24 * 60 * 60 * 1000);
-  console.log(new Date(bookingDay));
+  //console.log(new Date(bookingDay));
   let criteria = {'bookingTime.start': {$gte: bookingDay, $lte:afterDay}};;
   const getAllInfo = Promise.all([
     roundEndTime(event),
@@ -439,8 +493,8 @@ const updateEvent = (event, callback) => {
     findAllSchedules(criteria)
   ])
   .then(([endTime, cars, schedules]) => {
-    console.log(schedules.length);
-    console.log(cars);
+    //console.log(schedules.length);
+    //console.log(cars);
     event.bookingTime.end = endTime;
     if(schedules.length == 0 && cars.size > 0){
       const iterator1 = cars.values();
@@ -451,7 +505,7 @@ const updateEvent = (event, callback) => {
       let result = checkTimeConflict(schedules, event, cars); // check time conflict
       if(result.ranges[0].cars.size !=0){
         checkShorterRoad(schedules, event, result.ranges[0].cars, (shortedResult) =>{
-          console.log(shortedResult);
+          //console.log(shortedResult);
           if(callback.length !=0){
             event.carType.licensePlateNumber = shortedResult[0].carType;
             //console.log(event);
@@ -459,7 +513,7 @@ const updateEvent = (event, callback) => {
           }else{
             const iterator1 = result.ranges[0].cars.values();
             event.carType.licensePlateNumber = iterator1.next().value;
-            console.log(event);
+            //console.log(event);
             callback(event);
           }
         })
@@ -496,32 +550,39 @@ function convertReqBody(event){
   new_r.description = event.description;
   return new_r;
 }
+function overlap(schedules, newEvent){
+    var result = schedules.reduce((result, previous) => {
+
+      const moment = MomentRange.extendMoment(Moment);
+      var range1 = moment.range(new Date(parseInt(newEvent.bookingTime.start)), new Date(newEvent.bookingTime.end));
+      var range2 = moment.range(new Date(previous.bookingTime.start), new Date(previous.bookingTime.end));
+      var overlap = range1.overlaps(range2)
+      // store the result
+      if (overlap) {
+        result.overlap = true;
+        // yes, there is overlap
+        //result.overlap = true;
+        // store the specific ranges that overlap
+        result.ranges.push({
+          previous: previous,
+          current: newEvent
+        })
+      }
+
+    return result;
+
+     // seed the reduce
+  }, {overlap: false, ranges: []});
+
+
+  // return the final results
+  return result;
+}
 //check Timeslot conflict
 function checkTimeConflict(schedules, newEvent, cars) {
-  /*var sortedRanges = schedules.sort((previous, current) => {
-  // get the start date from previous and current
-  var previousTime = previous.bookingTime.start;
-  var currentTime = current.bookingTime.start;
-  // if the previous is earlier than the current
-  if (previousTime < currentTime) {
-    return -1;
-  }
-  // if the previous time is the same as the current time
-  if (previousTime === currentTime) {
-    return 0;
-  }
-  // if the previous time is later than the current time
-  return 1;
-});*/
+
 
   var result = schedules.reduce((result, previous) => {
-    //console.log(arr);
-    // get the previous range
-    /*console.log(idx);
-    if (idx === 0) { return result; }
-    var previous = arr[idx-1];
-    console.log(previous);*/
-    // check for any overlap
     const moment = MomentRange.extendMoment(Moment);
     var range1 = moment.range(new Date(parseInt(newEvent.bookingTime.start)), new Date(newEvent.bookingTime.end));
     var range2 = moment.range(new Date(previous.bookingTime.start), new Date(previous.bookingTime.end));
@@ -665,9 +726,10 @@ const checkShorterRoad = (schedules, newEvent, noConflictCar, callback) => {
     let temp = iterator1.next().value;
     let result = schedules.filter(carSchedule => (carSchedule.carType.licensePlateNumber == temp));
     result.push(newEvent);
-    console.log(result.length);
-    if(result.length > 1){
+    //console.log(result.length);
+    if(result.length > 2){
       sortRange(result, (sortedRanges) => {
+        //console.log(sortedRanges);
         const index = (element) => element.bookingTime.start == newEvent.bookingTime.start;
         let p = sortedRanges.findIndex(index);
         if(p !=0){
@@ -737,7 +799,7 @@ const checkShorterRoad = (schedules, newEvent, noConflictCar, callback) => {
           if(size < tm) {
             tempArray.push(sortedRanges[p]);
             tempArray.push(sortedRanges[p+1]);
-            calculateDistance(tempArray[1].start_location, tempArray[0].destination, (duration) =>{
+            calculateDistance(tempArray[0].start_location, tempArray[1].destination, (duration) =>{
               let plate = {};
               plate.carType = tempArray[1].carType.licensePlateNumber;
               plate.duration = duration.duration.value;
@@ -756,6 +818,7 @@ const checkShorterRoad = (schedules, newEvent, noConflictCar, callback) => {
             const iterator2 = noConflictCar.values();
             plate.carType = iterator2.next().value;
             durationArray.push(plate);
+            //console.log(durationArray);
             callback(durationArray);
           }
         }
@@ -765,7 +828,7 @@ const checkShorterRoad = (schedules, newEvent, noConflictCar, callback) => {
       const iterator2 = noConflictCar.values();
       plate.carType = iterator2.next().value;
       durationArray.push(plate);
-      console.log(durationArray);
+      //console.log(durationArray);
       callback(durationArray);
     }
   }

@@ -30,7 +30,7 @@
 }
 
 /* Modal Content */
-.modal-content {
+.modal-content{
   background-color: #fefefe;
   margin: auto;
   padding: 20px;
@@ -67,6 +67,41 @@ input::-webkit-inner-spin-button {
 /* Firefox */
 input[type=number] {
   -moz-appearance: textfield;
+}
+.times {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 9; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+.select-content{
+  background-color: #fefefe;
+  margin: auto;
+  margin-left: 45%;
+  margin-top: 5%;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 30%;
+}
+.select-close {
+  color: #aaaaaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.select-close:hover,
+.select-close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
 }
 </style>
 
@@ -133,18 +168,22 @@ input[type=number] {
   </div>
 
 </div>
+<div id="times" class="times" onchange="singleSelectChangeText()">
+  <div class="select-content">
+  <span id="select-close" class="select-close">&times;</span>
+<label for="cars">Choose a time:</label>
+<select id="cars">
+  <option id="time1" value="0"></option>
+  <option id="time2" value="1"></option>
+  <option id="time3" value="2"></option>
+</select>
+</div>
+</div>
 <div id='calendar'></div>
 <div class="dropdown">
 <div class="dropdown-content">
 </div>
 </div>
-<script>
-
-  $('#start_loc_lat').change(function(){
-      alert("change");
-  })
-
-</script>
 <script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js'></script>
 <script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
 <script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js'></script>
